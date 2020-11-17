@@ -1,0 +1,3 @@
+FLASK_APP=flaskapp.py
+SECRET_KEY=12uydgh5987yhd
+FLASK_DEBUG=1

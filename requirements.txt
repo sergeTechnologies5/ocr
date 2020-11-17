@@ -1,0 +1,7 @@
+flask
+flask-migrate
+flask-sqlalchemy
+flask-wtf
+pytesseract
+opencv-python
+flask-socketio
