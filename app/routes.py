@@ -17,17 +17,8 @@ thread_lock = Lock()
 
 @app.route('/')
 def index():
-    user = User()
-    user.name = 'Njeru'
-    user.nationa_id = "123"
-    user.number_plate = 'fse755'
-    db.session.add(user)
-    checkin = Checkin(vehicle =user)
-    checkin.number_plate = 'fse755'
-    checkin.checkin_status = 'in'
-    db.session.add(checkin)
-    db.session.commit()
-    return render_template('index.html', user=user)
+    
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -105,6 +96,7 @@ def pay():
     api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
     access_token = json.loads(r.text)["access_token"]
+    print(r.json)
     api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     headers = { "Authorization": "Bearer %s" % access_token }
     timestamp = str(dt.datetime.now()).split(".")[0].replace("-", "").replace(" ", "").replace(":", "")
@@ -130,13 +122,14 @@ def pay():
         "TransactionDesc": "test" ,
     }
     response = requests.post(api_url, json = req, headers=headers)
-    return response
+    return {"data" :"response"}
 
 def background_thread():
     main()
 
 @socketio.on('my_event', namespace='/test')
 def test_message(message):
+    print(message)
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': message['data'], 'count': session['receive_count']})

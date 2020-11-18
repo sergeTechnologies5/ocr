@@ -2,3 +2,4 @@ venv/
 __pycache__
 *.pyc
 migrations/
+app/cv/model.weights
