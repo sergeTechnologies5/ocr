@@ -12,13 +12,18 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 import datetime as dt
+import pyqrcode
+
 thread = None
 thread_lock = Lock()
 
 @app.route('/')
 def index():
-    
-    return render_template('index.html')
+
+    users = User.query.all()
+    checkins = Checkin.query.all()
+
+    return render_template('index.html', users=users, checkins=checkins)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -29,17 +34,36 @@ def login():
         return redirect(url_for('index'))
     return render_template('login.html', async_mode=socketio.async_mode)
 
+@app.route('/qr', methods=['POST'])
+def qrget():
+    data = request.get_json() or {}
+    user  = User.query.filter_by(national_id=data['national_id']).first()
+    if user :
+        return {'name':user.name,'national_id':user.national_id,'number_plate':user.number_plate,'phone_number':user.phone_number,'purpose':user.purpose,'gender':user.gender,'department':user.department}
+    else :
+        return {'name':''}
+
 @app.route('/user', methods=['POST'])
 def user():
     data = request.get_json() or {}
-    user  = User.query.filter_by(number_plate=data['number_plate']).first()
+    user  = User.query.filter_by(number_plate=data['number_plate'],national_id=data['national_id']).first()
     if user :
         return {'name':user.name,'national_id':user.national_id,'number_plate':user.number_plate}
     user = User()
     user.number_plate = data['number_plate']
+    user.phone_number = data['phone_number']
+    user.name = data['name']
+    national_id = data['national_id']
+    user.national_id = national_id
+    user.department = data['department']
+    user.gender = data['gender']
+    user.purpose = data['purpose']
+    user.qr_code_status = 'ok'
     db.session.add(user)
     db.session.commit()
-    return {'name':'null'}
+    url = pyqrcode.create(national_id)
+    url.svg(national_id+'.svg', scale=8)
+    return {'name':user.name}
 
 @app.route('/noplate', methods=['POST'])
 def noplate():
@@ -74,6 +98,7 @@ def checkin():
         return {'check':checkin.checkin_status}
     user = User()
     user.number_plate = data['number_plate']
+    user.qr_code_status='null'
     db.session.add(user)
     db.session.commit()
     return {'check':'null'}
@@ -91,38 +116,14 @@ def checkout():
 @app.route('/pay', methods=['POST'])
 def pay():
     data = request.get_json() or {}
-    consumer_key = "jJMVK098pTNas1GdmiEUGwVARaI5zOs3"
-    consumer_secret = "LMmzbd6qzELQfR5f"
-    api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-    r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
-    access_token = json.loads(r.text)["access_token"]
-    print(r.json)
-    api_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-    headers = { "Authorization": "Bearer %s" % access_token }
-    timestamp = str(dt.datetime.now()).split(".")[0].replace("-", "").replace(" ", "").replace(":", "")
-    business_short_code = "174379"
-    pass_key = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919"
-    password = "{}{}{}".format(business_short_code,pass_key,str(timestamp))
-    data_bytes = password.encode("utf-8")
-    #password encoding base64 
-    password = b64encode(data_bytes)
-    # hustle to change password and timestamp
-    password = password.decode("utf-8")
-    req = {
-        "BusinessShortCode": business_short_code,
-        "Password": password,
-        "Timestamp": timestamp,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": data['amount'],
-        "PartyA": "254708374149",
-        "PartyB": "174379",
-        "PhoneNumber": data['phonumber'],
-        "CallBackURL": "https://e07f93d4.ngrok.io/pesa/b2c/v1",
-        "AccountReference": "account",
-        "TransactionDesc": "test" ,
-    }
-    response = requests.post(api_url, json = req, headers=headers)
     return {"data" :"response"}
+
+@app.route('/qr', methods=['POST'])
+def generateqr():
+    data = request.get_json() or {}
+    national_id = data['national_id']
+    url = pyqrcode.create(national_id)
+    url.svg(national_id+'.svg', scale=8)
 
 def background_thread():
     main()
@@ -133,50 +134,6 @@ def test_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my_response',
          {'data': message['data'], 'count': session['receive_count']})
-
-
-@socketio.on('my_broadcast_event', namespace='/test')
-def test_broadcast_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
-@socketio.on('join', namespace='/test')
-def join(message):
-    join_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('leave', namespace='/test')
-def leave(message):
-    leave_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('close_room', namespace='/test')
-def close(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         'count': session['receive_count']},
-         room=message['room'])
-    close_room(message['room'])
-
-
-@socketio.on('my_room_event', namespace='/test')
-def send_room_message(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         room=message['room'])
-
 
 @socketio.on('disconnect_request', namespace='/test')
 def disconnect_request():
@@ -191,12 +148,6 @@ def disconnect_request():
     emit('my_response',
          {'data': 'Disconnected!', 'count': session['receive_count']},
          callback=can_disconnect)
-
-
-@socketio.on('my_ping', namespace='/test')
-def ping_pong():
-    emit('my_pong')
-
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
