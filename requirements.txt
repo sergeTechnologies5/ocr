@@ -5,3 +5,7 @@ flask-wtf
 pytesseract
 opencv-python
 flask-socketio
+email-validator
+flask-login
+flask_bootstrap
+flask-cors

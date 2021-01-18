@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="smart-checkin">
+  <meta name="author" content="GeeksLabs">
+  <meta name="keyword" content="smart-checkin">
+  <link rel="shortcut icon" href="{{url_for('static',filename='img/favicon.png')}}">
+  <title>smart-checkin</title>
+  <!-- Bootstrap CSS -->
+  <link href="{{url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+  <!-- bootstrap theme -->
+  <link href="{{url_for('static',filename='css/bootstrap-theme.css')}}" rel="stylesheet">
+  <!--external css-->
+  <!-- font icon -->
+  <link href="{{url_for('static',filename='css/elegant-icons-style.css')}}" rel="stylesheet" />
+  <link href="{{url_for('static',filename='css/font-awesome.css')}}" rel="stylesheet" />
+  <!-- Custom styles -->
+  <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+  <link href="{{url_for('static',filename='css/style-responsive.css')}}" rel="stylesheet" />
+
+</head>
+<body class="login-img3-body">
+  {% import "bootstrap/wtf.html" as wtf %}
+  <div class="container">
+    <form class="login-form" action="" method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="login-wrap">
+        <p class="login-img"><i class="icon_lock_alt"></i></p>
+      
+        {{ form.hidden_tag() }}
+        <p>
+            {{ wtf.form_field(form.username, class='form-control', placeholder='Password') }}<br>
+            
+        </p>
+        <p>
+            {{ wtf.form_field(form.email, class='form-control', placeholder='Password') }}<br>
+            
+        </p>
+        <p>
+            {{ wtf.form_field(form.password, class='form-control', placeholder='Password') }}<br>
+           
+        </p>
+        <p>
+            {{ wtf.form_field(form.password2, class='form-control', placeholder='Password') }}<br>
+           
+        </p>
+        <p>{{ wtf.form_field(form.submit, class='btn btn-primary btn-lg btn-block') }}</p>
+        <a href="{{url_for('login')}}" class="btn btn-primary btn-lg btn-block" type="submit">Login</a>
+    
+      </div>
+    </form>
+  </div>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+  integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+</body>
+</html>

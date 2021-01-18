@@ -64,7 +64,7 @@ def drawPred(classId, conf, left, top, right, bottom,frame):
     cv.imshow("Detected Number Plate", crop_img)
     predicted_result = pytesseract.image_to_string(crop_img, lang ='eng', config ='--oem 3 --psm 6') 
     if predicted_result != "":
-        response = requests.post('http://192.168.0.102:5000/checkin', json = {'number_plate':str(predicted_result.strip())})
+        response = requests.post('http://127.0.0.1:5000/checkin', json = {'number_plate':str(predicted_result.strip())})
         if response.status_code == 200 :
             socketio.emit('my_response',{'data': predicted_result, 'count': 1},namespace='/test')
             cv.destroyWindow('Detected Number Plate')

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Creative - Bootstrap 3 Responsive Admin Template">
+  <meta name="author" content="GeeksLabs">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+
+  <title>smart-checkin</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <!-- bootstrap theme -->
+  <link href="{{ url_for('static', filename='css/bootstrap-theme.css') }}" rel="stylesheet">
+  <!--external css-->
+  <!-- font icon -->
+  <link href="{{ url_for('static', filename='css/elegant-icons-style.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet" />
+  <!-- full calendar css-->
+  <link href="{{ url_for('static', filename='assets/fullcalendar/fullcalendar/bootstrap-fullcalendar.css') }}" rel="stylesheet"/>
+  <link href="{{url_for('static',filename='assets/fullcalendar/fullcalendar/fullcalendar.css')}}" rel="stylesheet" />
+  <!-- easy pie chart-->
+  <link href="{{url_for('static',filename='assets/jquery-easy-pie-chart/jquery.easy-pie-chart.css')}}" rel="stylesheet" type="text/css" media="screen" />
+  <!-- owl carousel -->
+  <link rel="stylesheet" href="{{url_for('static',filename='css/owl.carousel.css')}}" type="text/css">
+  <link href="{{url_for('static',filename='css/jquery-jvectormap-1.2.2.css')}}" rel="stylesheet">
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="{{url_for('static',filename='css/fullcalendar.css')}}">
+  <link href="{{url_for('static',filename='css/widgets.css')}}" rel="stylesheet">
+  <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+  <link href="{{url_for('static',filename='css/style-responsive.css')}}" rel="stylesheet" />
+  <link href="{{url_for('static',filename='css/xcharts.min.css')}}" rel=" stylesheet">
+  <link href="{{url_for('static',filename='css/jquery-ui-1.10.4.min.css')}}" rel="stylesheet">
+
+</head>
+
+<body>
+  <!-- container section start -->
+  <section id="container" class="">
+
+    <header class="header dark-bg">
+      <div class="toggle-nav">
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"><i class="icon_menu"></i></div>
+      </div>
+
+      <!--logo start-->
+      <a href="{{url_for('index')}}" class="logo">Smart <span class="lite">Checkin</span></a>
+      <!--logo end-->
+
+      <div class="nav search-row" id="top_menu">
+        <!--  search form start -->
+        <ul class="nav top-menu">
+          <li>
+            <form class="navbar-form">
+              <input class="form-control" placeholder="Search" type="text">
+            </form>
+          </li>
+        </ul>
+        <!--  search form end -->
+      </div>
+
+      <div class="top-nav notification-row">
+        <!-- notificatoin dropdown start-->
+        <ul class="nav pull-right top-menu">
+
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="profile-ava">
+                                <img alt="" src="{{url_for('static',filename='img/avatar1_small.jpg')}}">
+                            </span>
+                            <span class="username">{{current_user.username}}</span>
+                            <b class="caret"></b>
+                        </a>
+            <ul class="dropdown-menu extended logout">
+              <div class="log-arrow-up"></div>
+          
+              <li>
+                <a href="{{url_for('logout')}}"><i class="icon_key_alt"></i> Log Out</a>
+              </li>
+            
+            </ul>
+          </li>
+          <!-- user login dropdown end -->
+        </ul>
+        <!-- notificatoin dropdown end-->
+      </div>
+    </header>
+    <!--header end-->
+
+    <!--sidebar start-->
+    <aside>
+      <div id="sidebar" class="nav-collapse ">
+        <!-- sidebar menu start-->
+        <ul class="sidebar-menu">
+          <li class="active">
+            <a class="" href="{{url_for('index')}}">
+                          <i class="icon_house_alt"></i>
+                          <span>Dashboard</span>
+            </a>
+          </li>
+       
+          <li>
+            <a class="" href="{{url_for('vehicles')}}">
+                          <i class="icon_document_alt"></i>
+                          <span>Vehicles</span>
+            </a>
+          </li>
+          <li>
+            <a class="" href="{{url_for('checkins')}}">
+                          <i class="icon_table"></i>
+                          <span>Checkins</span>
+
+            </a>
+
+          </li>
+
+        </ul>
+        <!-- sidebar menu end-->
+      </div>
+    </aside>
+    <!--sidebar end-->
+    <!--main content start-->
+    <section id="main-content">
+      <section class="wrapper">
+        <!--overview start-->
+        <div class="row">
+          <div class="col-lg-12">
+            <h3 class="page-header"><i class="fa fa-laptop"></i> Dashboard</h3>
+            <ol class="breadcrumb">
+              <li><i class="fa fa-home"></i><a href="{{url_for('index')}}">Home</a></li>
+              <li><i class="fa fa-laptop"></i>Dashboard</li>
+            </ol>
+          </div>
+        </div>
+
+      
+        <div class="row">
+
+          <div class="col-lg-9 col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h2><i class="fa fa-flag-o red"></i><strong>Checkins</strong></h2>
+                <div class="panel-actions">
+                  <a href="#" class="btn-setting"><i class="fa fa-rotate-right"></i></a>
+                  <a href="#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+                  <a href="#" class="btn-close"><i class="fa fa-times"></i></a>
+                </div>
+              </div>
+              <div class="panel-body">
+                <table class="table bootstrap-datatable countries">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>User ID</th>
+                      <th>Number Plate</th>
+                      <th>Checkin Time</th>
+                      <th>Checkout Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for checkin in checkins %}
+                        <tr>
+                            <th scope="row">{{checkin.id}}</th>
+                            <td>{{checkin.user_id}}</td>
+                            <td>{{checkin.number_plate}}</td>
+                            <td>{{checkin.timestamp}}</td>
+                            <td>{{checkin.timestamp_check_out}}</td>
+                            <td>{{checkin.checkin_status}}</td>
+                        </tr>
+                     {% endfor %}
+                    
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+          </div>
+     
+
+        </div>
+
+        <div class="row">
+          
+          <div class="col-md-6 portlets">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <div class="pull-left">Checkin / Checkout</div>
+                <div class="widget-icons pull-right">
+                  <a href="#" class="wminimize"><i class="fa fa-chevron-up"></i></a>
+                  <a href="#" class="wclose"><i class="fa fa-times"></i></a>
+                </div>
+                <div class="clearfix"></div>
+              </div>
+              <div class="panel-body">
+                <div class="padd">
+
+                  <div class="form quick-post">
+                    <!-- Edit profile form (not working)-->
+                    <form class="form-horizontal">
+                      
+                      <div class="form-group">
+                        <label class="control-label col-lg-2">Number Plate</label>
+                        <div class="col-lg-10">
+                          <select id="number_plate" class="form-control">
+                              <option value="">- Choose Number Plate -</option>
+                              {% for user in users %}
+                              {% set value = user.id %}
+                              <option value={{value}} >{{user.number_plate}}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <!-- Buttons -->
+                      <div class="form-group">
+                        <!-- Buttons -->
+                        <div class="col-lg-offset-2 col-lg-9">
+                          <button id="checkout_btn" type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+
+                </div>
+                <div class="widget-foot">
+                  <!-- Footer goes here -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        <!-- project team & activity end -->
+
+      </section>
+      <div class="text-right">
+        <div class="credits">
+     
+          Designed by <a href="#">sergetechnologies</a>
+        </div>
+      </div>
+    </section>
+    <!--main content end-->
+  </section>
+  <!-- container section start -->
+
+  
+  <!-- javascripts -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+  integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+  <script src="{{url_for('static',filename='js/jquery.js')}}"></script>
+  <script src="{{url_for('static',filename='js/jquery-ui-1.10.4.min.js')}}"></script>
+  <script src="{{url_for('static',filename='js/jquery-1.8.3.min.js')}}"></script>
+  <script type="text/javascript" src="{{url_for('static',filename='js/jquery-ui-1.9.2.custom.min.js')}}"></script>
+  <!-- bootstrap -->
+  <script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+  <!-- nice scroll -->
+  <script src="{{url_for('static',filename='js/jquery.scrollTo.min.js')}}"></script>
+  <script src="{{url_for('static',filename='js/jquery.nicescroll.js')}}" type="text/javascript"></script>
+  <!-- charts scripts -->
+  <script src="{{url_for('static',filename='assets/jquery-knob/js/jquery.knob.js')}}"></script>
+  <script src="{{url_for('static',filename='js/jquery.sparkline.js')}}" type="text/javascript"></script>
+  <script src="{{url_for('static',filename='assets/jquery-easy-pie-chart/jquery.easy-pie-chart.js')}}"></script>
+  <script src="{{url_for('static',filename='js/owl.carousel.js')}}"></script>
+  <!-- jQuery full calendar -->
+  <script src="{{url_for('static',filename='js/fullcalendar.min.js')}}"></script>
+    <!-- Full Google Calendar - Calendar -->
+    <script src="{{url_for('static',filename='assets/fullcalendar/fullcalendar/fullcalendar.js')}}"></script>
+    <!--script for this page only-->
+    <script src="{{url_for('static',filename='js/calendar-custom.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery.rateit.min.js')}}"></script>
+    <!-- custom select -->
+    <script src="{{url_for('static',filename='js/jquery.customSelect.min.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/chart-master/Chart.js')}}"></script>
+
+    <!--custome script for all page-->
+    <script src="{{url_for('static',filename='js/scripts.js')}}"></script>
+    <!-- custom script for this page-->
+    <script src="{{url_for('static',filename='js/sparkline-chart.js')}}"></script>
+    <script src="{{url_for('static',filename='js/easy-pie-chart.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery-jvectormap-1.2.2.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery-jvectormap-world-mill-en.js')}}"></script>
+    <script src="{{url_for('static',filename='js/xcharts.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery.autosize.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery.placeholder.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/gdp-data.js')}}"></script>
+    <script src="{{url_for('static',filename='js/morris.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/sparklines.js')}}"></script>
+    <script src="{{url_for('static',filename='js/charts.js')}}"></script>
+    <script src="{{url_for('static',filename='js/jquery.slimscroll.min.js')}}"></script>
+    <script>
+      //knob
+      $(function() {
+        $(".knob").knob({
+          'draw': function() {
+            $(this.i).val(this.cv + '%')
+          }
+        })
+      });
+
+      //carousel
+      $(document).ready(function() {
+        $("#owl-slider").owlCarousel({
+          navigation: true,
+          slideSpeed: 300,
+          paginationSpeed: 400,
+          singleItem: true
+
+        });
+        $( "#checkout_btn" ).click(function( event ) {
+            // Stop form from submitting normally
+            event.preventDefault();
+            var number_plate = $( '#number_plate' ).val()
+
+            url = 'http://127.0.0.1:5000/checkin'
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify({ number_plate:number_plate}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){
+                    $( '#number_plate' ).empty()
+                    location.reload();
+                },
+                error: function(errMsg) {
+                    console.log('not ok')
+            }});
+
+            });
+      });
+
+      //custom select box
+
+      $(function() {
+        $('select.styled').customSelect();
+      });
+
+      /* ---------- Map ---------- */
+      $(function() {
+        $('#map').vectorMap({
+          map: 'world_mill_en',
+          series: {
+            regions: [{
+              values: gdpData,
+              scale: ['#000', '#000'],
+              normalizeFunction: 'polynomial'
+            }]
+          },
+          backgroundColor: '#eef3f7',
+          onLabelShow: function(e, el, code) {
+            el.html(el.html() + ' (GDP - ' + gdpData[code] + ')');
+          }
+        });
+      });
+    </script>
+
+</body>
+
+</html>

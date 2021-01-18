@@ -8,6 +8,5 @@ Payload.max_decode_packets = 500
 def make_shell_context():
     return {'db': db, 'User': User, 'Checkin': Checkin}
 
-# ,host='192.168.0.102'
 if __name__ == '__main__':
-    socketio.run(app, debug=True,host='192.168.0.102')
+    socketio.run(app, debug=True,host='127.0.0.1')

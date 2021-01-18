@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for,session,copy_current_request_context,request
 from app import app, socketio,db
-from app.forms import LoginForm
-from app.models import User, Checkin
+from app.forms import LoginForm ,RegistrationForm
+from app.models import User, Checkin, Users
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 from threading import Lock
@@ -13,26 +13,69 @@ from requests.auth import HTTPBasicAuth
 import json
 import datetime as dt
 import pyqrcode
+from flask_login import current_user, login_user,logout_user,login_required
+from werkzeug.urls import url_parse
 
 thread = None
 thread_lock = Lock()
 
 @app.route('/')
+@app.route('/index')
+@login_required
 def index():
-
     users = User.query.all()
     checkins = Checkin.query.all()
-
     return render_template('index.html', users=users, checkins=checkins)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
-        flash('Login requested for user {}, remember_me={}'.format(
-            form.username.data, form.remember_me.data))
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page)
+    return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
         return redirect(url_for('index'))
-    return render_template('login.html', async_mode=socketio.async_mode)
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = Users(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/vehicles')
+@login_required
+def vehicles():
+    users = User.query.all()
+    return render_template('vehicles.html', users=users)
+
+@app.route('/checkins')
+@login_required
+def checkins():
+    checkins = Checkin.query.all()
+    users = User.query.all()
+    return render_template('checkins.html', users=users, checkins=checkins)
 
 @app.route('/qr', methods=['POST'])
 def qrget():
@@ -62,7 +105,7 @@ def user():
     db.session.add(user)
     db.session.commit()
     url = pyqrcode.create(national_id)
-    url.svg(national_id+'.svg', scale=8)
+    url.svg('app/static/img/'+national_id+'.svg', scale=8)
     return {'name':user.name}
 
 @app.route('/noplate', methods=['POST'])
@@ -79,9 +122,9 @@ def noplate():
 @app.route('/checkin', methods=['POST'])
 def checkin():
     data = request.get_json() or {}
-    user  = User.query.filter_by(number_plate=data['number_plate']).first()
+    user  = User.query.filter_by(id=data['number_plate']).first()
     if user :
-        checkin = Checkin.query.filter_by(number_plate=data['number_plate']).first()
+        checkin = Checkin.query.filter_by(number_plate=user.number_plate).first()
         if checkin :
             if checkin.checkin_status == 'in':
                 checkin.checkin_status = 'out' 
@@ -91,16 +134,11 @@ def checkin():
             return {'checkin': checkin.checkin_status}
         
         checkin = Checkin(vehicle =user)
-        checkin.number_plate = data['number_plate']
+        checkin.number_plate = user.number_plate
         checkin.checkin_status = 'in'
         db.session.add(checkin)
         db.session.commit()
         return {'check':checkin.checkin_status}
-    user = User()
-    user.number_plate = data['number_plate']
-    user.qr_code_status='null'
-    db.session.add(user)
-    db.session.commit()
     return {'check':'null'}
 
 @app.route('/checkout', methods=['POST'])
@@ -112,11 +150,6 @@ def checkout():
         db.session.commit()
         return {'check_in' :checkin.timestamp,'check_out' :checkin.timestamp_check_out}
     return {'check':'null'}
-
-@app.route('/pay', methods=['POST'])
-def pay():
-    data = request.get_json() or {}
-    return {"data" :"response"}
 
 @app.route('/qr', methods=['POST'])
 def generateqr():
